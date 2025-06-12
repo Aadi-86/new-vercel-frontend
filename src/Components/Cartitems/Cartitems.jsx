@@ -1,10 +1,24 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./Cartitems.css";
 import { ShopContext } from "../../Context/ShopContext";
 import remove_icon from "../../Components/Assets/cart_cross_icon.png";
+import fallback_products from "../../Components/Assets/all_product.js";
+
 const Cartitems = () => {
-  const { all_product, addToCart, RemoveCart, cartItems,getTotalCartAmount } =
+  const { all_product, addToCart, RemoveCart, cartItems, getTotalCartAmount } =
     useContext(ShopContext);
+
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    if (all_product && all_product.length > 0) {
+      setProducts(all_product);
+    } else {
+      console.warn("Context product list is empty. Using fallback data.");
+      setProducts(fallback_products);
+    }
+  }, [all_product]);
+
   return (
     <div className="cartitems">
       <div className="cartitems-format-main">
@@ -16,25 +30,21 @@ const Cartitems = () => {
         <p>Remove</p>
       </div>
       <hr />
-      {all_product.map((e) => {
+      {products.map((e) => {
         if (cartItems[e.id] > 0) {
           return (
-            <div>
+            <div key={e.id}>
               <div className="cartitems-format cartitems-format-main">
                 <img src={e.image} alt="" className="cartitems-product-icon" />
                 <p>{e.name}</p>
                 <p>${e.new_price}</p>
-                <button className="cartitems-quantity">
-                  {cartItems[e.id]}
-                </button>
+                <button className="cartitems-quantity">{cartItems[e.id]}</button>
                 <p>${e.new_price * cartItems[e.id]}</p>
                 <img
                   className="cartitems-remove-icon"
                   src={remove_icon}
-                  onClick={() => {
-                    RemoveCart(e.id);
-                  }}
-                  alt=""
+                  onClick={() => RemoveCart(e.id)}
+                  alt="Remove"
                 />
               </div>
               <hr />
@@ -65,9 +75,9 @@ const Cartitems = () => {
           <button>PROCEED TO CHECKOUT</button>
         </div>
         <div className="cartitems-promocode">
-          <p>If you have a promo code, Enter it here</p>
+          <p>If you have a promo code, enter it here</p>
           <div className="cartitems-promobox">
-            <input type="text" placeholder="promo code" />
+            <input type="text" placeholder="Promo code" />
             <button>Submit</button>
           </div>
         </div>
